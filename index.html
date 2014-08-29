@@ -1,0 +1,44 @@
+<!DOCTYPE HTML>
+<html ng-app="sz.client">
+    <head>
+        <meta charset="utf-8" />
+        <title>Canvas Crop Image</title>
+    </head>
+    <body>
+        <input type="file" id="upload">
+        <button id="crop">Crop</button>
+        <canvas id="myCanvas" width="578" height="200" style="border: 2px solid red;"></canvas>
+
+        <script type="text/javascript" src="script.js"></script>
+        <script type="text/javascript">
+            function readURL(input, drawFn) {
+                if (input.files.length == 1){
+                    var img = input.files[0];
+                    console.log(img)
+                    if (img.type.match('image.*')) {
+                        var reader = new FileReader();
+                        reader.onload = (function(theFile) {
+                            return function(e) {
+                                drawFn(e.target.result, escape(img.name))
+                            };
+                        })(img);
+                        reader.readAsDataURL(img);
+                    }
+                    else{alert('Недопустимый формат')}
+                }
+            }
+
+            var crop = new CropImage(document.getElementById('myCanvas'));
+
+            document.querySelector('#crop').onclick = function(){
+                crop.crop()
+            }
+
+            document.querySelector("#upload").onchange=function(){
+                function draw(data, title){
+                    crop.draw(data, title)
+                }
+                readURL(this, draw)
+            }
+        </script>
+    </body>
