@@ -26,81 +26,12 @@ CropImage.prototype._init = function(body) {
                newX < (self.w - self.croper.offsetWidth) &&
                newY > 0 &&
                newY < (self.h - self.croper.offsetHeight)){
-                console.log('drag!!!')
                 self.croper.style.left = newX + 'px';
                 self.croper.style.top = newY + 'px';
             }
         }
         if(self.resizeok){
             self._resizeCrope(ev)
-/*
-            var newX = self.croper.offsetLeft
-            var newY = self.croper.offsetTop;
-            var difW = 0;
-            var difH = 0;
-
-            var croperW = self.croper.offsetWidth;
-            var croperH = self.croper.offsetHeight;
-            var zeroX = self.croper.offsetLeft/2;
-            var zeroY = self.croper.offsetTop/2;
-            var isYMoreZero = self.startY > zeroY;
-            var isXMoreZero = self.startX > zeroX;
-
-            var posY = ev.clientY - self.body.offsetTop;
-            var posX = ev.clientX - self.body.offsetLeft;
-            if(isXMoreZero){
-                var difW = posX - self.croper.offsetLeft - croperW;
-                if(isYMoreZero){
-                    var difH = posY - self.croper.offsetTop - croperH;
-                } else{
-                    var newY = posY - self.startY
-                    console.log('change Y and (w, h)')
-                }
-            } else{
-                if(isYMoreZero){
-                    console.log('change X and (w, h)')
-                } else{
-                    console.log('change X, Y and (w, h)')
-                }
-            }
-
-            var difAvg = (difW + difH)/2
-            console.log(difW + ';' + difH + ';' + difAvg)
-            var newVal = croperW + difAvg;
-            self.croper.style.width = newVal + 'px';
-            self.croper.style.height = newVal + 'px';
-            self.croper.style.left = newX + 'px';
-            self.croper.style.top = newY + 'px';*/
-
-/*            function _getDif(start, croperPos, croperVal, pos){
-                var newPos = croperPos;
-                if(start > croperPos/2){
-                    var dif = pos - croperPos - croperVal;
-                } else{
-                    var newPos = pos - start;
-                    var dif = croperPos - newPos;
-                }
-                return {dif: dif, newPos: newPos}
-            }
-
-            var paramsX = _getDif(self.startX, self.croper.offsetLeft, croperW, ev.clientX - self.body.offsetLeft);
-            var newX = paramsX.newPos;
-            var paramsY = _getDif(self.startY, self.croper.offsetTop, croperH, ev.clientY - self.body.offsetTop);
-            var newY = paramsY.newPos;
-
-            var newValAvg = !paramsX.dif ? paramsY.dif :
-                            !paramsY.dif ? paramsX.dif :
-                            (Math.abs(paramsX.dif) + Math.abs(paramsY.dif))/2;
-            var newW = croperW + newValAvg*(paramsX.dif/Math.abs(paramsX.dif));
-            var newH = croperW + newValAvg*(paramsY.dif/Math.abs(paramsY.dif));
-            if( newW > self.settings.croper.min &&
-                newX > 0 && (newX + newW) < self.w &&
-                newY > 0 && (newY + newW) < self.h){
-                self.croper.style.width = newW + 'px';
-                self.croper.style.height = newH + 'px';
-                self.croper.style.left = newX + 'px';
-                self.croper.style.top = newY + 'px';
-            }*/
         }
     }
 };
@@ -124,7 +55,6 @@ CropImage.prototype._resizeCrope = function(ev) {
     if( dif && newVal > this.settings.croper.min &&
         newX > 0 && (newX + newVal) < this.w &&
         newY > 0 && (newY + newVal) < this.h){
-        console.log(newX + ';' + newY + ';' + dif)
         self.croper.style.left = newX + 'px';
         self.croper.style.top = newY + 'px';
         self.croper.style.width = newVal + 'px';
