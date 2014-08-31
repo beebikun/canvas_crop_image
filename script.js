@@ -1,9 +1,8 @@
 var CropImage = function(body){
     this.settings = new Object;
     this.settings.croper = {
-        width: 200 + 'px',
-        height: 200 + 'px',
-        border: '4px solid black',
+        border: 10,
+        min: 100,
     }
     this._init(body)
 }
@@ -15,47 +14,128 @@ CropImage.prototype._init = function(body) {
     this.rectParams = {x: 0, y: 0}
     this.img = new Object
 
-
     var self = this
-
-    function _canvasMove(e){
-        if ( self.dragok && self._drawRectCanMove(e) ){
-            self._setRectPos(e)
-        }
-    }
-
-    function _canvasDown(e){
-        self.dragok = true;
-        /*if (self._drawRectCanMove(e)){
-        }*/
-    }
-
-    function _canvasUp(e){
-        self.dragok = false;
-    };
-
-
-
-
-/*    body.onmousedown = _canvasDown;
-    body.onmouseup = _canvasUp;
-    body.onmousemove = _canvasMove;*/
     body.onmouseup = function(ev){
-        self.dragok = false
+        self._clearState(ev)
     }
     body.onmousemove = function(ev){
         if(self.dragok){
-            var newX = ev.clientX - self.body.offsetLeft;
-            var newY = ev.clientY - self.body.offsetTop;
+            var newX = ev.clientX - self.body.offsetLeft - self.startX;
+            var newY = ev.clientY - self.body.offsetTop - self.startY;
             if(newX > 0 &&
                newX < (self.w - self.croper.offsetWidth) &&
                newY > 0 &&
                newY < (self.h - self.croper.offsetHeight)){
+                console.log('drag!!!')
                 self.croper.style.left = newX + 'px';
                 self.croper.style.top = newY + 'px';
             }
         }
+        if(self.resizeok){
+            self._resizeCrope(ev)
+/*
+            var newX = self.croper.offsetLeft
+            var newY = self.croper.offsetTop;
+            var difW = 0;
+            var difH = 0;
+
+            var croperW = self.croper.offsetWidth;
+            var croperH = self.croper.offsetHeight;
+            var zeroX = self.croper.offsetLeft/2;
+            var zeroY = self.croper.offsetTop/2;
+            var isYMoreZero = self.startY > zeroY;
+            var isXMoreZero = self.startX > zeroX;
+
+            var posY = ev.clientY - self.body.offsetTop;
+            var posX = ev.clientX - self.body.offsetLeft;
+            if(isXMoreZero){
+                var difW = posX - self.croper.offsetLeft - croperW;
+                if(isYMoreZero){
+                    var difH = posY - self.croper.offsetTop - croperH;
+                } else{
+                    var newY = posY - self.startY
+                    console.log('change Y and (w, h)')
+                }
+            } else{
+                if(isYMoreZero){
+                    console.log('change X and (w, h)')
+                } else{
+                    console.log('change X, Y and (w, h)')
+                }
+            }
+
+            var difAvg = (difW + difH)/2
+            console.log(difW + ';' + difH + ';' + difAvg)
+            var newVal = croperW + difAvg;
+            self.croper.style.width = newVal + 'px';
+            self.croper.style.height = newVal + 'px';
+            self.croper.style.left = newX + 'px';
+            self.croper.style.top = newY + 'px';*/
+
+/*            function _getDif(start, croperPos, croperVal, pos){
+                var newPos = croperPos;
+                if(start > croperPos/2){
+                    var dif = pos - croperPos - croperVal;
+                } else{
+                    var newPos = pos - start;
+                    var dif = croperPos - newPos;
+                }
+                return {dif: dif, newPos: newPos}
+            }
+
+            var paramsX = _getDif(self.startX, self.croper.offsetLeft, croperW, ev.clientX - self.body.offsetLeft);
+            var newX = paramsX.newPos;
+            var paramsY = _getDif(self.startY, self.croper.offsetTop, croperH, ev.clientY - self.body.offsetTop);
+            var newY = paramsY.newPos;
+
+            var newValAvg = !paramsX.dif ? paramsY.dif :
+                            !paramsY.dif ? paramsX.dif :
+                            (Math.abs(paramsX.dif) + Math.abs(paramsY.dif))/2;
+            var newW = croperW + newValAvg*(paramsX.dif/Math.abs(paramsX.dif));
+            var newH = croperW + newValAvg*(paramsY.dif/Math.abs(paramsY.dif));
+            if( newW > self.settings.croper.min &&
+                newX > 0 && (newX + newW) < self.w &&
+                newY > 0 && (newY + newW) < self.h){
+                self.croper.style.width = newW + 'px';
+                self.croper.style.height = newH + 'px';
+                self.croper.style.left = newX + 'px';
+                self.croper.style.top = newY + 'px';
+            }*/
+        }
     }
+};
+
+CropImage.prototype._resizeCrope = function(ev) {
+    var croper = this.croper;
+    var cr = {x: croper.offsetLeft, rx: croper.offsetLeft + croper.offsetWidth,
+                     y: croper.offsetTop, by: croper.offsetTop + croper.offsetHeight}
+    var zero = {x: croper.offsetWidth/2, y: croper.offsetHeight/2}
+
+    var evInCanvas = {x: ev.clientX - this.body.offsetLeft, y: ev.clientY - this.body.offsetTop} //в этой точке - новая граница
+
+    var difX = cr.x - evInCanvas.x;
+    var difY = cr.y - evInCanvas.y;
+    if(this.startX > zero.x) var difX = evInCanvas.x - cr.rx
+    if(this.startY > zero.y) var difY = evInCanvas.y - cr.by
+    var dif = Math.floor((difX + difY)/2);
+    var newVal = croper.offsetWidth + dif*2
+    var newX = cr.x - dif
+    var newY = cr.y - dif
+    if( dif && newVal > this.settings.croper.min &&
+        newX > 0 && (newX + newVal) < this.w &&
+        newY > 0 && (newY + newVal) < this.h){
+        console.log(newX + ';' + newY + ';' + dif)
+        self.croper.style.left = newX + 'px';
+        self.croper.style.top = newY + 'px';
+        self.croper.style.width = newVal + 'px';
+        self.croper.style.height = newVal + 'px';
+    }
+
+};
+
+CropImage.prototype._clearState = function() {
+    this.dragok = false;
+    this.resizeok = false;
 };
 
 
@@ -69,16 +149,27 @@ CropImage.prototype._createCanvas = function() {
 };
 
 CropImage.prototype._createCroper = function() {
-    var self = this;
+    var self = this, border = this.settings.croper.border;
     this.croper = croper = document.createElement('div')
+    croper.className = 'croper'
     croper.onmousedown = function(ev){
-        self.dragok = true
+        self.startX = ev.offsetX
+        self.startY = ev.offsetY
+        if( ev.offsetX > border &&
+            (ev.offsetX + border) < self.croper.offsetWidth &&
+            ev.offsetY > border &&
+            (ev.offsetY + border) < self.croper.offsetHeight){
+                self.dragok = true
+        } else{
+            self.resizeok = true
+        }
     }
     croper.onmouseup = function(ev){
-        self.dragok = false
+        self._clearState(ev)
     }
-    croper.className = 'croper'
     this.body.appendChild(croper)
+    croper.style.left = (this.w - croper.offsetWidth)/2 + 'px'
+    croper.style.top = (this.h - croper.offsetHeight)/2 + 'px'
 };
 
 
